@@ -1,7 +1,7 @@
 {
-    "name": "pzem-004",
-    "version": "0.0.2",
-    "slug": "pzem_004",
+    "name": "pzem-004 to mqtt",
+    "version": "0.0.3",
+    "slug": "pzem-004_to_mqtt",
     "description": "Fetch data from pzem 004",
     "arch": ["armhf", "armv7", "aarch64", "amd64", "i368"],
     "startup": "application",
