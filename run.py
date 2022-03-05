@@ -130,4 +130,3 @@ if __name__ == '__main__':
 
     loopCounter += 1
     time.sleep(60)
-    
