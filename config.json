@@ -1,0 +1,21 @@
+{
+    "name": "pzem-004",
+    "version": "0.0.1",
+    "slug": "pzem_004",
+    "description": "Fetch data from pzem 004",
+    "arch": ["armhf", "armv7", "aarch64", "amd64", "i368"],
+    "startup": "application",
+    "boot": "auto",
+    "options": {
+        "serial": "/dev/ttyUSB0"
+    },
+    "schema": {
+        "serial": "str?",
+        "mqtt": {
+            "broker": "str?",
+            "username": "str?",
+            "password": "str?"
+        }
+    },
+    "devices": ["/dev/ttyUSB0:/dev/ttyUSB0:rwm"]
+}
