@@ -1,5 +1,5 @@
 name: "pzem-004 to mqtt"
-description: "My first real add-on!"
+description: "Fetch data from pzem 004"
 version: "1.0.0"
 slug: "pzem-004_to_mqtt"
 arch:
@@ -8,3 +8,9 @@ arch:
   - armhf
   - armv7
   - i386
+schema:
+  serial: str?
+options:
+  serial: "/dev/ttyUSB0"
+devices:
+  - "/dev/ttyUSB0:/dev/ttyUSB0:rwm"
