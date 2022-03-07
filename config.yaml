@@ -1,6 +1,6 @@
 name: "pzem-004 to mqtt"
 description: "Fetch data from pzem 004"
-version: "1.0.0"
+version: "0.0.3"
 slug: "pzem-004_to_mqtt"
 arch:
   - aarch64
