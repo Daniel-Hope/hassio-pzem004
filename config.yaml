@@ -1,6 +1,7 @@
 name: "pzem-004 to mqtt"
 description: "Fetch data from pzem 004"
 version: "0.0.3"
+url: "https://github.com/Daniel-Hope/hassio-pzem004"
 slug: "pzem-004_to_mqtt"
 arch:
   - aarch64
@@ -8,6 +9,8 @@ arch:
   - armhf
   - armv7
   - i386
+startup: "application"
+boot: "auto"
 schema:
   serial: str?
 options:
