@@ -100,7 +100,7 @@ def readEnergy(pzem):
 
 if __name__ == '__main__':
   config = readConfig()
-  sys.stdout.flush()
+  print("Initializing pzem", flush=True)
   
   pzem = serial.Serial(config['serial'], 9600, timeout=5)
   ip = 'C0A8010100'
@@ -109,8 +109,7 @@ if __name__ == '__main__':
 
   loopCounter = 1
   while True:
-    print("Starting read loop " + str(loopCounter))
-    sys.stdout.flush()
+    print("Starting read loop " + str(loopCounter), flush=True)
 
     # Get data from pzem
     voltage = readVoltage(pzem)
@@ -125,8 +124,7 @@ if __name__ == '__main__':
     print("Energy: " + str(energy) + "Wh")
     print("----------------------")
 
-    print("Waiting 60 seconds before next loop\n")
-    sys.stdout.flush()
+    print("Waiting 60 seconds before next loop\n", flush=True)
 
     loopCounter += 1
     time.sleep(60)
