@@ -1,4 +1,4 @@
-name: "Hello world"
+name: "pzem-004 to mqtt"
 description: "My first real add-on!"
 version: "1.0.0"
 slug: "hello_world"
