@@ -13,6 +13,10 @@ startup: "application"
 boot: "auto"
 schema:
   serial: str?
+  mqtt:
+    broker: str?
+    username: str?
+    password: str?
 options:
   serial: "/dev/ttyUSB0"
 devices:
