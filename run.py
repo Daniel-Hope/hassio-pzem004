@@ -6,9 +6,11 @@ import ssl
 import time
 import json
 import sys
+import os
 
 
 def readConfig():
+  print(os.environ)
   f = open("/data/options.json", "r")
   config = f.read()
   f.close()
