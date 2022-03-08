@@ -106,15 +106,24 @@ def readEnergy(pzem):
 
 
 ## MQTT 
+# https://www.eclipse.org/paho/index.php?page=clients/python/docs/index.php
 
 def onPublish(client, userdata, mid):
   print("Message published", flush=True)
 
-def onConnect(client, userdata, message):
+def onConnect(client, userdata, flags, rc):
   print("Connected to mqtt broker", flush=True)
 
 def onMessage(client, userdata, message):
   print("Why am I receiving messages", flush=True)
+
+def onDisconnect(client, userdata, flags, rc):
+  print("mqtt client disconnected", flush=True)
+
+def onLog(client, userdata, level, buf):
+  print(str(level) + ": " + str(buf), flush=True)
+
+
 
 def createMqttClient(brokerURL, username, password):
   print("Connecting to mqtt broker: " + brokerURL, flush=True)
@@ -125,6 +134,8 @@ def createMqttClient(brokerURL, username, password):
   client.on_connect = onConnect
   client.on_message = onMessage
   client.on_publish = onPublish
+  client.on_disconnect = onDisconnect
+  client.on_log = onLog
   client.connect_async(urlParts[0], int(urlParts[1]), POLL_INTERVAL*5)
   client.loop_start()
   return client
@@ -165,7 +176,7 @@ if __name__ == '__main__':
 
     print("Sending data to mqtt", flush=True)
 
-    mqttClient.publish("pzem", payload=json.dumps(data))
+    mqttClient.publish("pzem", payload=json.dumps(data), qos=1)
 
     print("Waiting " + str(POLL_INTERVAL) + " seconds before next loop\n", flush=True)
 
