@@ -7,6 +7,7 @@ import time
 import json
 import sys
 import os
+import paho.mqtt.client as mqtt
 
 
 def readConfig():
@@ -18,6 +19,9 @@ def readConfig():
   return json.loads(config)
 
 
+## PZEM util
+
+
 def createByteData(hexString):
   data = bytearray.fromhex(hexString)
   checkSum = 0
@@ -25,7 +29,6 @@ def createByteData(hexString):
     checkSum += byte
   data.append(checkSum & 0x000000FF)
   return data
-
 
 
 def writeData(pzem, data):
@@ -41,7 +44,7 @@ def readData(pzem):
   return data
 
 
-## Commands
+## PZEM Commands
 
 def setAddr(pzem, ip):
   print("Set address: " + ip)
@@ -100,6 +103,32 @@ def readEnergy(pzem):
   
 
 
+## MQTT 
+
+def onPublish(client, userdata, mid):
+  print("Message published", flush=True)
+
+def onConnect(client, userdata, message):
+  print("Connected to mqtt broker", flush=True)
+
+def onMessage(client, userdata, message):
+  print("Why am I receiving messages", flush=True)
+
+def createMqttClient(brokerURL, username, password):
+  print("Connecting to mqtt broker: " + brokerURL, flush=True)
+  urlParts = brokerURL.split(":")
+
+  client = mqtt.Client("pzem-addon")
+  client.username_pw_set(username, password=password)
+  client.on_connect = onConnect
+  client.on_message = onMessage
+  client.on_publish = onPublish
+
+  return client
+
+
+
+
 if __name__ == '__main__':
   config = readConfig()
   print("Initializing pzem", flush=True)
@@ -108,6 +137,7 @@ if __name__ == '__main__':
   ip = 'C0A8010100'
   setAddr(pzem, ip)
 
+  mqttClient = createMqttClient(config["mqtt"]["broker"], config["mqtt"]["username"], config["mqtt"]["password"])
 
   loopCounter = 1
   while True:
@@ -126,7 +156,18 @@ if __name__ == '__main__':
     print("Energy: " + str(energy) + "Wh")
     print("----------------------")
 
+    data = {}
+    data["voltage"] = voltage
+    data["current"] = current
+    data["power"] = power
+    data["energy"] = energy
+
+    print("Sending data to mqtt", flush=True)
+
+    mqttClient.publish("pzem", json.dumps(data))
+
     print("Waiting 60 seconds before next loop\n", flush=True)
+
 
     loopCounter += 1
     time.sleep(60)

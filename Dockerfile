@@ -5,6 +5,7 @@ ENV LANG C.UTF-8
 
 # Install requirements for add-on
 RUN pip3 install --no-cache-dir pyserial
+RUN pip3 install --no-cache-dir paho-mqtt
 
 COPY run.py /
 RUN chmod a+x /run.py
