@@ -124,9 +124,8 @@ def createMqttClient(brokerURL, username, password):
   client.on_message = onMessage
   client.on_publish = onPublish
   client.connect(urlParts[0], int(urlParts[1]), 60)
+  client.loop_start()
   return client
-
-
 
 
 if __name__ == '__main__':
