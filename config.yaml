@@ -22,4 +22,4 @@ options:
 devices:
   - "/dev/ttyUSB0:/dev/ttyUSB0:rwm"
 services:
-  - mqtt
+  - "mqtt:need"
