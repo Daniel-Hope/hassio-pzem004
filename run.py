@@ -9,6 +9,8 @@ import sys
 import os
 import paho.mqtt.client as mqtt
 
+POLL_INTERVAL = 60
+
 
 def readConfig():
   print(os.environ)
@@ -123,7 +125,7 @@ def createMqttClient(brokerURL, username, password):
   client.on_connect = onConnect
   client.on_message = onMessage
   client.on_publish = onPublish
-  client.connect(urlParts[0], int(urlParts[1]), 60)
+  client.connect_async(urlParts[0], int(urlParts[1]), POLL_INTERVAL*5)
   client.loop_start()
   return client
 
@@ -163,10 +165,10 @@ if __name__ == '__main__':
 
     print("Sending data to mqtt", flush=True)
 
-    mqttClient.publish("pzem", json.dumps(data))
+    mqttClient.publish("pzem", payload=json.dumps(data))
 
-    print("Waiting 60 seconds before next loop\n", flush=True)
+    print("Waiting " + str(POLL_INTERVAL) + " seconds before next loop\n", flush=True)
 
 
     loopCounter += 1
-    time.sleep(60)
+    time.sleep(POLL_INTERVAL)
