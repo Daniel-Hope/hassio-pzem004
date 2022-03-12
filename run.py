@@ -12,6 +12,7 @@ import paho.mqtt.client as mqtt
 POLL_INTERVAL = 60
 SENSOR_PREFIX = "PZEM-004 "
 MQTT_QOS = 0
+AVAILIBILITY_TOPIC_POSTFIX = "/bridge/state"
 
 
 class GracefulKiller:
@@ -156,7 +157,7 @@ def createMqttClient(brokerURL, username, password):
 
 def createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass, unitOfMeasurement):
   return {
-    "availability": [{"topic": AVAILIBILITY_TOPIC}],
+    "availability": [{"topic": baseTopic + AVAILIBILITY_TOPIC_POSTFIX}],
     "device": {
       "identifiers": [
         baseTopic + "_" + sensorIndex
@@ -200,9 +201,9 @@ def sendDiscoveryMessages(mqttClient, baseTopic, sensorName, sensorIndex, device
 
 
 
-def sendStateMessage(mqttClient, state):
+def sendStateMessage(mqttClient, baseTopic, state):
   print("Sending state messte: " + state)
-  mqttClient.publish(AVAILIBILITY_TOPIC, payload = state, qos = 0)
+  mqttClient.publish(baseTopic + AVAILIBILITY_TOPIC_POSTFIX, payload = state, qos = 0)
 
 
 
