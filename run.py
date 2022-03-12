@@ -7,6 +7,7 @@ import time
 import json
 import sys
 import os
+import signal
 import paho.mqtt.client as mqtt
 
 POLL_INTERVAL = 60
@@ -202,7 +203,7 @@ def sendDiscoveryMessages(mqttClient, baseTopic, sensorName, sensorIndex):
 
 
 def sendStateMessage(mqttClient, baseTopic, state):
-  print("Sending state messte: " + state)
+  print("Sending state messte: " + state, flush=True)
   mqttClient.publish(baseTopic + AVAILIBILITY_TOPIC_POSTFIX, payload = state, qos = 0)
 
 
@@ -271,6 +272,6 @@ if __name__ == '__main__':
       break
   
   print("Quitting gracefully", flush=True)
-  sendStateMessage(mqttClient, baseTopic, "online")
+  sendStateMessage(mqttClient, baseTopic, "offline")
 
 
