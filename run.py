@@ -177,25 +177,25 @@ def createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass, unit
   }
 
 
-def sendDiscoveryMessages(mqttClient, baseTopic, sensorName, sensorIndex, deviceClass, unitOfMeasurement):
+def sendDiscoveryMessages(mqttClient, baseTopic, sensorName, sensorIndex):
   mqttClient.publish(
     baseTopic + "/" + sensorName,
-    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass)),
+    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "voltage", "V")),
     qos = MQTT_QOS
   )
   mqttClient.publish(
     baseTopic + "/" + sensorName,
-    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass)),
+    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "current", "A")),
     qos = MQTT_QOS
   )
   mqttClient.publish(
     baseTopic + "/" + sensorName,
-    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass)),
+    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "power", "W")),
     qos = MQTT_QOS
   )
   mqttClient.publish(
     baseTopic + "/" + sensorName,
-    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass)),
+    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "energy", "Wh")),
     qos = MQTT_QOS
   )
 
@@ -228,7 +228,7 @@ if __name__ == '__main__':
   energy = readEnergy(pzem)
 
   # Send discovery messages
-  sendDiscoveryMessages(mqttClient, baseTopic, sensorName, sensorIndex, deviceClass)
+  sendDiscoveryMessages(mqttClient, baseTopic, sensorName, sensorIndex)
 
   # Send enabled state
   sendStateMessage(mqttClient, baseTopic, "online")
