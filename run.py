@@ -49,15 +49,15 @@ def createByteData(hexString):
 
 
 def writeData(pzem, data):
-  print("Writing data: " + data.hex())
+  #print("Writing data: " + data.hex())
   bytesWritten = pzem.write(data)
-  print("Bytes written: " + str(bytesWritten))
+  #print("Bytes written: " + str(bytesWritten))
 
 
 def readData(pzem):
-  print("Reading data")
+  #print("Reading data")
   data = pzem.read(7)
-  print("Response: " + str(data))
+  #print("Response: " + str(data))
   return data
 
 
@@ -139,6 +139,13 @@ def onLog(client, userdata, level, buf):
   print(str(level) + ": " + str(buf), flush=True)
 
 
+def sendMqttMessage(mqttClient, topic, payload):
+  mqttClient.publish(
+    topic,
+    payload = payload,
+    qos = MQTT_QOS
+  )
+
 
 def createMqttClient(brokerURL, username, password):
   print("Connecting to mqtt broker: " + brokerURL, flush=True)
@@ -181,25 +188,25 @@ def createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass, unit
 def sendDiscoveryMessages(mqttClient, baseTopic, sensorName, sensorIndex):
   configTopic = "homeassistant/sensor/" + sensorName + sensorIndex +"/battery/config"
 
-  mqttClient.publish(
+  sendMqttMessage(
+    mqttClient,
     baseTopic + "/" + sensorName,
-    payload = json.dumps(createDiscoveryPayload(configTopic, sensorName, sensorIndex, "voltage", "V")),
-    qos = MQTT_QOS
+    payload = json.dumps(createDiscoveryPayload(configTopic, sensorName, sensorIndex, "voltage", "V"))
   )
-  mqttClient.publish(
+  sendMqttMessage(
+    mqttClient,
     baseTopic + "/" + sensorName,
-    payload = json.dumps(createDiscoveryPayload(configTopic, sensorName, sensorIndex, "current", "A")),
-    qos = MQTT_QOS
+    payload = json.dumps(createDiscoveryPayload(configTopic, sensorName, sensorIndex, "current", "A"))
   )
-  mqttClient.publish(
+  sendMqttMessage(
+    mqttClient,
     baseTopic + "/" + sensorName,
-    payload = json.dumps(createDiscoveryPayload(configTopic, sensorName, sensorIndex, "power", "W")),
-    qos = MQTT_QOS
+    payload = json.dumps(createDiscoveryPayload(configTopic, sensorName, sensorIndex, "power", "W"))
   )
-  mqttClient.publish(
+  sendMqttMessage(
+    mqttClient,
     baseTopic + "/" + sensorName,
-    payload = json.dumps(createDiscoveryPayload(configTopic, sensorName, sensorIndex, "energy", "Wh")),
-    qos = MQTT_QOS
+    payload = json.dumps(createDiscoveryPayload(configTopic, sensorName, sensorIndex, "energy", "Wh"))
   )
 
 
@@ -207,7 +214,6 @@ def sendDiscoveryMessages(mqttClient, baseTopic, sensorName, sensorIndex):
 def sendStateMessage(mqttClient, baseTopic, state):
   print("Sending state messte: " + state, flush=True)
   mqttClient.publish(baseTopic + AVAILIBILITY_TOPIC_POSTFIX, payload = state, qos = 0)
-
 
 
 if __name__ == '__main__':
@@ -263,7 +269,7 @@ if __name__ == '__main__':
 
     print("Sending data to mqtt", flush=True)
 
-    mqttClient.publish(baseTopic + "/" + sensorName, payload=json.dumps(data), qos=MQTT_QOS)
+    sendMqttMessage(mqttClient, baseTopic + "/" + sensorName, payload=json.dumps(data))
 
     print("Waiting " + str(POLL_INTERVAL) + " seconds before next loop\n", flush=True)
 
