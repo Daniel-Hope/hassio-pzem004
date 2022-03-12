@@ -10,6 +10,19 @@ import os
 import paho.mqtt.client as mqtt
 
 POLL_INTERVAL = 60
+SENSOR_PREFIX = "PZEM-004 "
+MQTT_QOS = 0
+
+
+class GracefulKiller:
+  kill_now = False
+
+  def __init__(self):
+    signal.signal(signal.SIGINT, self.exit_gracefully)
+    signal.signal(signal.SIGTERM, self.exit_gracefully)
+
+  def exit_gracefully(self,signum, frame):
+    self.kill_now = True
 
 
 def readConfig():
@@ -141,6 +154,58 @@ def createMqttClient(brokerURL, username, password):
   return client
 
 
+def createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass, unitOfMeasurement):
+  return {
+    "availability": [{"topic": AVAILIBILITY_TOPIC}],
+    "device": {
+      "identifiers": [
+        baseTopic + "_" + sensorIndex
+      ],
+      "manufacturer": "Peacefair",
+      "model": "PZEM-004",
+      "name": "PZEM-004 1",
+      "sw_version": "pzem-004 to mqtt 0.0.11"
+    },
+    "device_class": deviceClass,
+    "json_attributes_topic": baseTopic + "/" + sensorName, 
+    "name": sensorName + " " + deviceClass,
+    "state_topic": baseTopic + "/" + sensorName,
+    "unique_id": baseTopic + "_" + sensorIndex + "_" + deviceClass,
+    "unit_of_measurement": unitOfMeasurement,
+    "value_template": "{{ value_json." + deviceClass + " }}"
+  }
+
+
+def sendDiscoveryMessages(mqttClient, baseTopic, sensorName, sensorIndex, deviceClass, unitOfMeasurement):
+  mqttClient.publish(
+    baseTopic + "/" + sensorName,
+    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass)),
+    qos = MQTT_QOS
+  )
+  mqttClient.publish(
+    baseTopic + "/" + sensorName,
+    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass)),
+    qos = MQTT_QOS
+  )
+  mqttClient.publish(
+    baseTopic + "/" + sensorName,
+    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass)),
+    qos = MQTT_QOS
+  )
+  mqttClient.publish(
+    baseTopic + "/" + sensorName,
+    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass)),
+    qos = MQTT_QOS
+  )
+
+
+
+def sendStateMessage(mqttClient, state):
+  print("Sending state messte: " + state)
+  mqttClient.publish(AVAILIBILITY_TOPIC, payload = state, qos = 0)
+
+
+
 if __name__ == '__main__':
   config = readConfig()
   print("Initializing pzem", flush=True)
@@ -150,6 +215,24 @@ if __name__ == '__main__':
   setAddr(pzem, ip)
 
   mqttClient = createMqttClient(config["mqtt"]["broker"], config["mqtt"]["username"], config["mqtt"]["password"])
+  baseTopic = config["mqtt"]["baseTopic"]
+
+  sensorIndex = "1"
+  sensorName = SENSOR_PREFIX + sensorIndex
+
+  # Do a read from PZEM for the first time and discount it. Sometimes we get a 0 back instead of the actual reading.
+  voltage = readVoltage(pzem)
+  current = readCurrent(pzem)
+  power = readPower(pzem)
+  energy = readEnergy(pzem)
+
+  # Send discovery messages
+  sendDiscoveryMessages(mqttClient, baseTopic, sensorName, sensorIndex, deviceClass)
+
+  # Send enabled state
+  sendStateMessage(mqttClient, baseTopic, "online")
+
+  killer = GracefulKiller()
 
   loopCounter = 1
   while True:
@@ -176,10 +259,17 @@ if __name__ == '__main__':
 
     print("Sending data to mqtt", flush=True)
 
-    mqttClient.publish("pzem", payload=json.dumps(data), qos=1)
+    mqttClient.publish(baseTopic + "/" + sensorName, payload=json.dumps(data), qos=MQTT_QOS)
 
     print("Waiting " + str(POLL_INTERVAL) + " seconds before next loop\n", flush=True)
 
-
     loopCounter += 1
     time.sleep(POLL_INTERVAL)
+
+    if killer.kill_now:
+      break
+  
+  print("Quitting gracefully", flush=True)
+  sendStateMessage(mqttClient, baseTopic, "online")
+
+
