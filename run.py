@@ -140,6 +140,7 @@ def onLog(client, userdata, level, buf):
 
 
 def sendMqttMessage(mqttClient, topic, payload):
+  print("Sending to mqtt. Topic: " + topic + ", payload: " + payload)
   mqttClient.publish(
     topic,
     payload = payload,
