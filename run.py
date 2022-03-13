@@ -187,33 +187,33 @@ def createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass, unit
 
 
 def sendDiscoveryMessages(mqttClient, baseTopic, sensorName, sensorIndex):
-  discoveryTopic = "homeassistant/sensor/" + sensorName +"/battery/config"
+  discoveryTopicFormat = "homeassistant/sensor/{}/{}/config"
 
   sendMqttMessage(
     mqttClient,
-    discoveryTopic,
+    discoveryTopicFormat.format(sensorName, "voltage"),
     payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "voltage", "V"))
   )
   sendMqttMessage(
     mqttClient,
-    discoveryTopic,
+    discoveryTopicFormat.format(sensorName, "current"),
     payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "current", "A"))
   )
   sendMqttMessage(
     mqttClient,
-    discoveryTopic,
+    discoveryTopicFormat.format(sensorName, "power"),
     payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "power", "W"))
   )
   sendMqttMessage(
     mqttClient,
-    discoveryTopic,
+    discoveryTopicFormat.format(sensorName, "energy"),
     payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "energy", "Wh"))
   )
 
 
 
 def sendStateMessage(mqttClient, baseTopic, state):
-  print("Sending state messte: " + state, flush=True)
+  print("Sending state message: " + state, flush=True)
   mqttClient.publish(baseTopic + AVAILIBILITY_TOPIC_POSTFIX, payload = state, qos = 0)
 
 
