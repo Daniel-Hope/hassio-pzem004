@@ -166,7 +166,7 @@ def createMqttClient(brokerURL, username, password):
 
 
 def createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass, unitOfMeasurement):
-  return {
+  payload = {
     "availability": [{"topic": baseTopic + AVAILIBILITY_TOPIC_POSTFIX}],
     "device": {
       "identifiers": [
@@ -185,6 +185,10 @@ def createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass, unit
     "unit_of_measurement": unitOfMeasurement,
     "value_template": "{{ value_json." + deviceClass + " }}"
   }
+  if deviceClass == "energy":
+    payload["last_reset_value_template"] = "{{ value_json.lastReset }}"
+
+  return payload
 
 
 def sendDiscoveryMessages(mqttClient, baseTopic, sensorName, sensorIndex):
@@ -272,6 +276,7 @@ if __name__ == '__main__':
     data["current"] = current
     data["power"] = power
     data["energy"] = energy
+    data["lastReset"] = "1970-01-01T00:00:00+00:00"
 
     print("Sending data to mqtt", flush=True)
 
