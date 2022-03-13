@@ -139,12 +139,13 @@ def onLog(client, userdata, level, buf):
   print(str(level) + ": " + str(buf), flush=True)
 
 
-def sendMqttMessage(mqttClient, topic, payload):
-  print("Sending to mqtt. Topic: " + topic + ", payload: " + payload)
+def sendMqttMessage(mqttClient, topic, payload, retain=False):
+  print("Sending to mqtt. Topic: " + topic + ", payload: " + payload, flush=True)
   mqttClient.publish(
     topic,
     payload = payload,
-    qos = MQTT_QOS
+    qos = MQTT_QOS,
+    retain = retain
   )
 
 
@@ -192,29 +193,33 @@ def sendDiscoveryMessages(mqttClient, baseTopic, sensorName, sensorIndex):
   sendMqttMessage(
     mqttClient,
     discoveryTopicFormat.format(sensorName, "voltage"),
-    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "voltage", "V"))
+    json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "voltage", "V")),
+    True
   )
   sendMqttMessage(
     mqttClient,
     discoveryTopicFormat.format(sensorName, "current"),
-    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "current", "A"))
+    json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "current", "A")),
+    True
   )
   sendMqttMessage(
     mqttClient,
     discoveryTopicFormat.format(sensorName, "power"),
-    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "power", "W"))
+    json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "power", "W")),
+    True
   )
   sendMqttMessage(
     mqttClient,
     discoveryTopicFormat.format(sensorName, "energy"),
-    payload = json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "energy", "Wh"))
+    json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "energy", "Wh")),
+    True
   )
 
 
 
 def sendStateMessage(mqttClient, baseTopic, state):
   print("Sending state message: " + state, flush=True)
-  mqttClient.publish(baseTopic + AVAILIBILITY_TOPIC_POSTFIX, payload = state, qos = 0)
+  sendMqttMessage(mqttClient, baseTopic + AVAILIBILITY_TOPIC_POSTFIX, state, True)
 
 
 if __name__ == '__main__':
