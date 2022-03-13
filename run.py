@@ -11,7 +11,7 @@ import signal
 import paho.mqtt.client as mqtt
 
 POLL_INTERVAL = 60
-SENSOR_PREFIX = "PZEM-004 "
+SENSOR_PREFIX = "PZEM-004-"
 MQTT_QOS = 0
 AVAILIBILITY_TOPIC_POSTFIX = "/bridge/state"
 
