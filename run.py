@@ -165,7 +165,7 @@ def createMqttClient(brokerURL, username, password):
   return client
 
 
-def createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass, unitOfMeasurement):
+def createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass, unitOfMeasurement, stateClass):
   payload = {
     "availability": [{"topic": baseTopic + AVAILIBILITY_TOPIC_POSTFIX}],
     "device": {
@@ -178,6 +178,7 @@ def createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass, unit
       "sw_version": "pzem-004 to mqtt 0.0.11"
     },
     "device_class": deviceClass,
+    "state_class": stateClass,
     "json_attributes_topic": baseTopic + "/" + sensorName, 
     "name": sensorName + " " + deviceClass,
     "state_topic": baseTopic + "/" + sensorName,
@@ -185,7 +186,7 @@ def createDiscoveryPayload(baseTopic, sensorName, sensorIndex, deviceClass, unit
     "unit_of_measurement": unitOfMeasurement,
     "value_template": "{{ value_json." + deviceClass + " }}"
   }
-  if deviceClass == "energy":
+  if stateClass == "total_increasing":
     payload["last_reset_value_template"] = "{{ value_json.lastReset }}"
 
   return payload
@@ -197,25 +198,25 @@ def sendDiscoveryMessages(mqttClient, baseTopic, sensorName, sensorIndex):
   sendMqttMessage(
     mqttClient,
     discoveryTopicFormat.format(sensorName, "voltage"),
-    json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "voltage", "V")),
+    json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "voltage", "V", "measurement")),
     True
   )
   sendMqttMessage(
     mqttClient,
     discoveryTopicFormat.format(sensorName, "current"),
-    json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "current", "A")),
+    json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "current", "A", "measurement")),
     True
   )
   sendMqttMessage(
     mqttClient,
     discoveryTopicFormat.format(sensorName, "power"),
-    json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "power", "W")),
+    json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "power", "W", "measurement")),
     True
   )
   sendMqttMessage(
     mqttClient,
     discoveryTopicFormat.format(sensorName, "energy"),
-    json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "energy", "Wh")),
+    json.dumps(createDiscoveryPayload(baseTopic, sensorName, sensorIndex, "energy", "Wh", "total_increasing")),
     True
   )
 
@@ -276,7 +277,7 @@ if __name__ == '__main__':
     data["current"] = current
     data["power"] = power
     data["energy"] = energy
-    data["lastReset"] = "1970-01-01T00:00:00+00:00"
+    data["lastReset"] = config["lastReset"]
 
     print("Sending data to mqtt", flush=True)
 

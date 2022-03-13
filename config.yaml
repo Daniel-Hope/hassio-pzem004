@@ -1,6 +1,6 @@
 name: "pzem-004 to mqtt"
 description: "Fetch data from pzem 004"
-version: "0.0.22"
+version: "0.0.23"
 url: "https://github.com/Daniel-Hope/hassio-pzem004"
 slug: "pzem-004_to_mqtt"
 arch:
@@ -13,6 +13,7 @@ startup: "application"
 boot: "auto"
 schema:
   serial: str?
+  lastReset: str?
   mqtt:
     broker: str?
     username: str?
@@ -20,6 +21,7 @@ schema:
     baseTopic: str?
 options:
   serial: "/dev/ttyUSB0"
+  lastReset: "1970-01-01T00:00:00+00:00"
   mqtt:
     baseTopic: "pzem2mqtt"
 devices:
